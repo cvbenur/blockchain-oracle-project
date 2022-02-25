@@ -1,5 +1,5 @@
 export interface MarvelCharacter {
-  id: number;
+  marvelId: number;
   name: string;
   description: string;
   appearances: number;

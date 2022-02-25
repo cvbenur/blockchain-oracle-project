@@ -9,7 +9,14 @@ interface CharacterOptions extends RequestOptions {
   nameStartsWith?: string;
 }
 
-export async function fetchCharacters (options?: CharacterOptions): Promise<MarvelCharacter[]> {
+const re = /\"/gi;
+
+/**
+ * Fetches character data from the Marvel Comics API
+ * @param options {@link CharacterOptions}
+ * @returns An array of character data
+ */
+export async function fetchCharactersData (options?: CharacterOptions): Promise<MarvelCharacter[]> {
   const req = requestBuilder(
     '/characters',
     (
@@ -25,9 +32,9 @@ export async function fetchCharacters (options?: CharacterOptions): Promise<Marv
 
   for (const characterData of res.data.results) {
     ret.push({
-      id: characterData.id,
+      marvelId: characterData.id,
       name: characterData.name,
-      description: characterData.description,
+      description: characterData.description.replace(re, '\''),
       appearances: characterData.comics.available,
     });
   }
