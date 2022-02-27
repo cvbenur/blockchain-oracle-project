@@ -28,7 +28,8 @@ function getAuthParamsAsString (): string {
 }
 
 // Returns the URL parameters as an URL encoded request string
-function getParamsAsString (params: RequestParam[]): string {
+function getParamsAsString(params: RequestParam[]): string {
+  // => "&key1=value1&key2=value2"
   return params.length > 0
     ? '&' + params.map((p) => `${p.key}=${p.value}`).join('&')
     : '';

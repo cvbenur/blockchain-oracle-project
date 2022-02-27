@@ -17,7 +17,7 @@ abstract contract OracleInterface {
 
     function testConnection() public pure virtual returns (bool);
 
-    function characterExists(uint256 _charId)
+    function characterExists(uint256 _marvelId)
         public
         view
         virtual
@@ -49,17 +49,7 @@ abstract contract OracleInterface {
             uint256
         );
 
-    function getLatestCharacter()
-        public
-        view
-        virtual
-        returns (
-            uint256,
-            uint256,
-            string memory,
-            string memory,
-            uint256
-        );
+    function getNumberOfCharacters() public view virtual returns (uint256);
 
     function addTestData() public virtual;
 }

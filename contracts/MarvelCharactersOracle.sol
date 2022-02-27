@@ -33,11 +33,17 @@ contract MarvelCharacters is Ownable {
         return address(this);
     }
 
-    /// @notice Checks whether an entry exists for the given ID
-    /// @param _charId The character ID to check
+    /// @notice Checks whether an entry exists for the given Marvel Comics character ID
+    /// @param _marvelId The Marvel Comics character ID to check
     /// @return `true` if it exists, else `false`
-    function characterExists(uint256 _charId) public view returns (bool) {
-        return characters.length == 0 ? false : (_charIdToIndex[_charId] > 0);
+    function characterExists(uint256 _marvelId) public view returns (bool) {
+        if (characters.length == 0) {
+            return false;
+        }
+
+        uint256 charId = _marvelIdToId[_marvelId];
+
+        return _charIdToIndex[charId] > 0;
     }
 
     /// @notice Retrieve the IDs of all the characters stored in the contract
@@ -118,21 +124,11 @@ contract MarvelCharacters is Ownable {
         return getCharacterById(_marvelIdToId[_marvelId]);
     }
 
-    /// @notice Returns the last character added to the array
-    /// @return The character data if it exists, `(0, 0, "", "", 0)` otherwise
-    function getLatestCharacter()
-        public
-        view
-        returns (
-            uint256,
-            uint256,
-            string memory,
-            string memory,
-            uint256
-        )
-    {
-        // Return the last character's data
-        return getCharacterById(characters[characters.length].id);
+    /// @notice Returns the number of characters in the array
+    /// @return The number of characters in the array
+    function getNumberOfCharacters() public view returns (uint256) {
+        // Return the length of the array
+        return characters.length;
     }
 
     /// @notice Adds a new Marvel character into the blockchain
@@ -147,14 +143,14 @@ contract MarvelCharacters is Ownable {
         string memory _description,
         uint256 _appearances
     ) public onlyOwner returns (uint256) {
+        // Making sure that this character doesn't already exist
+        require(!characterExists(_marvelId));
+
         // Starting IDs from 1 and not 0:
         _characterIdCounter.increment();
 
         // Get new incremental unique ID
         uint256 id = _characterIdCounter.current();
-
-        // Making sure that this ID is not already taken
-        require(!characterExists(id));
 
         // Adding the new character to the array
         characters.push(
