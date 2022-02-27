@@ -4,7 +4,7 @@ pragma solidity >=0.4.22 <0.9.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract MarvelCharacters is Ownable {
+contract MarvelCharactersOracle is Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _characterIdCounter;
 
