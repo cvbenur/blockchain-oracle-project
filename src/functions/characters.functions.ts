@@ -9,6 +9,7 @@ interface CharacterOptions extends RequestOptions {
   nameStartsWith?: string;
 }
 
+// RegExp for one double quote (")
 const re = /\"/gi;
 
 /**
@@ -16,7 +17,8 @@ const re = /\"/gi;
  * @param options {@link CharacterOptions}
  * @returns An array of character data
  */
-export async function fetchCharactersData (options?: CharacterOptions): Promise<MarvelCharacter[]> {
+export async function fetchCharactersData(options?: CharacterOptions): Promise<MarvelCharacter[]> {
+  // Craft HTTP request for the characters endpoint
   const req = requestBuilder(
     '/characters',
     (
@@ -26,10 +28,13 @@ export async function fetchCharactersData (options?: CharacterOptions): Promise<
     )
   );
 
+  // Initialize empty array
   let ret: MarvelCharacter[] = [];
 
+  // Fetch data from Marvel Comics API
   const res = (await axios.get(req)).data as any;
 
+  // Fill array with retrieved data from API
   for (const characterData of res.data.results) {
     ret.push({
       marvelId: characterData.id,
@@ -39,5 +44,6 @@ export async function fetchCharactersData (options?: CharacterOptions): Promise<
     });
   }
 
+  // Return filled array
   return ret;
 }

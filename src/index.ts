@@ -10,15 +10,29 @@ const MarvelCharactersOracle = config.getContract();
 
 // Example
 //
-// MarvelCharactersOracle.methods.testConnection()
+// Reference: https://web3js.readthedocs.io/en/v1.7.0/web3-eth-contract.html#methods-mymethod-call
+//
+// Contract method with no parameters:
+//
+// MarvelCharactersOracle.methods
+//   .testConnection()
 //   .call()
 //   .then(console.log)
 //   .catch(console.error);
 //
+//
+// Contract method with parameters:
+//
+// MarvelCharactersOracle.methods
+//   .characterExists(1234)
+//   .call({ _marvelId: 1234 })
+//   .then(console.log)
+//   .catch(console.error)
+//
 
 const MILISECONDS_IN_A_DAY = 3600 * 24 * 1000;
 
-setTimeout(() => {
+setTimeout(async () => {
   // TODO
 
   // 1. Get the number of characters in the blockchain
