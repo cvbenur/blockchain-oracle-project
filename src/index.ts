@@ -1,7 +1,20 @@
+import { config } from './config/config';
 import { fetchCharactersData } from "./functions/characters.functions";
 
+const MarvelCharactersOracle = config.getContract();
+
 // Example
+//
 // fetchCharactersData({ name: 'Daredevil' }).then(console.log).catch(console.error);
+//
+
+// Example
+//
+// MarvelCharactersOracle.methods.testConnection()
+//   .call()
+//   .then(console.log)
+//   .catch(console.error);
+//
 
 const MILISECONDS_IN_A_DAY = 3600 * 24 * 1000;
 
