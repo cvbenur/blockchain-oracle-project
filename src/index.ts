@@ -2,71 +2,81 @@ import { config } from "./config/config";
 import { fetchCharactersData } from "./functions/characters.functions";
 import { MarvelCharacter } from "./models/marvel-character.model";
 
-const MarvelCharactersOracle = config.getContract();
-
-// Example
-//
-// fetchCharactersData({ name: 'Daredevil' }).then(console.log).catch(console.error);
-//
-
-// Example
-//
-// Reference: https://web3js.readthedocs.io/en/v1.7.0/web3-eth-contract.html#methods-mymethod-call
-//
-// Contract method with no parameters:
-//
-// MarvelCharactersOracle.methods
-//   .testConnection()
-//   .call()
-//   .then(console.log)
-//   .catch(console.error);
-//
-//
-// Contract method with parameters:
-//
-// MarvelCharactersOracle.methods
-//   .characterExists(1234)
-//   .call({ _marvelId: 1234 })
-//   .then(console.log)
-//   .catch(console.error)
-//
-
 const MILISECONDS_IN_A_DAY = 3600 * 24 * 1000;
 
-setTimeout(async () => {
-  // TODO
-  // 1. Get the number of characters in the blockchain
+// Retrieve the Oracle instance
+const MarvelCharactersOracle = config.contract.getContract();
+
+// Pushes character data from the Marvel Comics API into the MarvelCharactersOracle contract
+async function performFetchAndPushCycle(cycle: number) {
   try {
-    const len = await MarvelCharactersOracle.methods
+    console.log(`Starting cycle ${cycle} (${new Date().toLocaleString()}):`);
+
+
+
+    // Retrieve the contract's owner address
+    const OWNER_ADDRESS = await config.contract.getOwner();
+
+
+
+    // 1. Get the current number of characters already in the blockchain
+    const length: number = await MarvelCharactersOracle.methods
       .getNumberOfCharacters()
       .call();
+    
+    console.log(`Characters already present in storage: ${length}.`);
 
-    const characters = fetchCharactersData({ offset: len, limit: 2 });
 
-    for (let character of await characters) {
-      await MarvelCharactersOracle.methods
+
+    // 2. Fetch the next 100 characters from the Marvel API
+    const characters: MarvelCharacter[] = await fetchCharactersData({ offset: length, limit: 10 });
+
+    console.log(`Next ${characters.length} characters fetched successfully.`);
+    
+
+
+    // 3. Push the new characters into the blockchain
+    console.log(`Starting push cycle...`);
+
+    for (let i = 0; i < characters.length; i++) {
+
+      console.log(`- Character ${i+1} of ${characters.length}:`);
+
+      // Push the current character data into the blockchain
+      const receipt = await MarvelCharactersOracle.methods
         .addCharacter(
-          character.marvelId,
-          character.name,
-          character.description,
-          character.appearances
+          characters[i].marvelId,
+          characters[i].name,
+          characters[i].description,
+          characters[i].appearances
         )
-        .call({
-          marvelId: character.marvelId,
-          name: character.name,
-          description: character.description,
-          appearances: character.appearances,
-        })
-        .catch(console.error);
+        .send({
+          from: OWNER_ADDRESS,
+          gas: config.contract.gasLimit,
+        });
+      
+      // Log TX hash into the console
+      console.log('\tSuccess.\n\tTX hash: ' + receipt.transactionHash);
     }
-    console.log(`OK ${length}`);
-  } catch (e) {
-    console.error(e);
+
+    console.log(`End of cycle ${cycle}.\n`);
+  } catch (error) {
+    console.error(error);
   }
-}, 1000);
+}
 
-// 2. Fetch the next 200 characters from the Marvel API
 
-// 3. Push the new characters into the blockchain
+// Run the cycle once on server start
+let CYCLE_COUNTER = 0;
+
+performFetchAndPushCycle(++CYCLE_COUNTER);
+
+// Run the cycle once a day after the first time
+setInterval(async () => {
+
+  // Perform one cycle
+  await performFetchAndPushCycle(++CYCLE_COUNTER);
+
+}, MILISECONDS_IN_A_DAY); // Wait one day to repeat
 
 export default {};
