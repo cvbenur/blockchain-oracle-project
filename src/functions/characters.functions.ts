@@ -2,7 +2,7 @@ import { requestBuilder, optionsToParamArray, RequestOptions } from "./request.f
 import { MarvelCharacter } from "../models/marvel-character.model";
 import axios from 'axios';
 
-interface CharacterOptions extends RequestOptions {
+interface FetchCharacterOptions extends RequestOptions {
   offset?: number;
   limit?: number;
   name?: string;
@@ -14,10 +14,20 @@ const re = /\"/gi;
 
 /**
  * Fetches character data from the Marvel Comics API
- * @param options {@link CharacterOptions}
+ * @param options {@link FetchCharacterOptions}
  * @returns An array of character data
+ * 
+ * @example
+ * fetchCharactersData({ name: 'Daredevil' }).then((data) => { console.log(data) });
+ * or:
+ * const data = await fetchCharactersData({ limit: 35 });
  */
-export async function fetchCharactersData(options?: CharacterOptions): Promise<MarvelCharacter[]> {
+export async function fetchCharactersData(options?: FetchCharacterOptions): Promise<MarvelCharacter[]> {
+  if (options?.limit) {
+    // Make sure that we don't request more than 100 characters at once
+    options.limit = options.limit > 100 ? 100 : options.limit;
+  }
+  
   // Craft HTTP request for the characters endpoint
   const req = requestBuilder(
     '/characters',
