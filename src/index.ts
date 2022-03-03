@@ -36,12 +36,15 @@ const MILISECONDS_IN_A_DAY = 3600 * 24 * 1000;
 setTimeout(async () => {
   // TODO
   // 1. Get the number of characters in the blockchain
+try{
+    const length = await MarvelCharactersOracle.methods
+    .getNumberOfCharacters()
+    .call();
+} catch(e){
+  console.error(e);
+}
 
-  const length = MarvelCharactersOracle.methods
-    .getAllCharacters()
-    .call()
-    .then(console.log)
-    .catch(console.error).length;
+    
 
   // 2. Fetch the next 200 characters from the Marvel API
 
@@ -50,7 +53,7 @@ setTimeout(async () => {
   // 3. Push the new characters into the blockchain
 
   for (let character of await characters) {
-    MarvelCharactersOracle.methods
+    await MarvelCharactersOracle.methods
       .addCharacter(
         character.marvelId,
         character.name,
@@ -58,9 +61,9 @@ setTimeout(async () => {
         character.appearances
       )
       .call()
-      .then(console.log)
       .catch(console.error);
   }
-}, MILISECONDS_IN_A_DAY);
+  console.log(`OK ${length}`);
+}, 1000);
 
 export default {};
