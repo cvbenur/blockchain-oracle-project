@@ -25,7 +25,7 @@ const MARVEL = {
 
 
 /* ======== PROVIDER ======== */
-const PROVIDER_NETWORK_HOST = process.env.PROVIDER_NETWORK_HOST || 'localhost';
+const PROVIDER_NETWORK_HOST = process.env.PROVIDER_NETWORK_HOST || '127.0.0.1';
 const PROVIDER_NETWORK_PORT = process.env.PROVIDER_NETWORK_PORT || 7545;
 const NETWORK_URL = `http://${PROVIDER_NETWORK_HOST}:${PROVIDER_NETWORK_PORT}`;
 
@@ -36,12 +36,22 @@ const WEB3 = new Web3(PROVIDER);
 
 /* ======== CONTRACT ======== */
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || contractJson.networks[5777].address;
-
 const CONTRACT_ABI = contractJson.abi as AbiItem[];
+const CONTRACT_GAS_LIMIT = process.env.CONTRACT_GAS_LIMIT || 3_000_000;
 const CONTRACT = new WEB3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+
+const CONTRACT_OWNER_ADDRESS = async (): Promise<string> => {
+  return await CONTRACT.methods
+    .owner()
+    .call();
+}
 /* ======== CONTRACT ======== */
 
 export const config = {
   marvel: MARVEL,
-  getContract: () => CONTRACT,
+  contract: {
+    getContract: () => CONTRACT,
+    gasLimit: CONTRACT_GAS_LIMIT,
+    getOwner: CONTRACT_OWNER_ADDRESS
+  },
 };
