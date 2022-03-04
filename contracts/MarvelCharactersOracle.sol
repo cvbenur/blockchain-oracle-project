@@ -12,6 +12,7 @@ contract MarvelCharactersOracle is Ownable {
 
     mapping(uint256 => uint256) _charIdToIndex;
     mapping(uint256 => uint256) _marvelIdToId;
+    mapping(uint256 => uint256) _idToMarvelId;
 
     struct Character {
         uint256 id;
@@ -20,6 +21,9 @@ contract MarvelCharactersOracle is Ownable {
         string description;
         uint256 appearances;
     }
+
+    /// @notice Event to dispatch on character addition
+    event CharacterAdded(uint256 _id, uint256 _marvelId, string _name);
 
     /// @notice Used to test the connection with the client
     /// @return Always `true`
@@ -86,7 +90,7 @@ contract MarvelCharactersOracle is Ownable {
         )
     {
         // If the character exists
-        if (characterExists(_charId)) {
+        if (characterExists(_idToMarvelId[_charId])) {
             // Retrieve character data
             Character storage retrieved = characters[
                 _getCharacterIndexFromId(_charId)
@@ -162,6 +166,10 @@ contract MarvelCharactersOracle is Ownable {
 
         _charIdToIndex[id] = newIndex;
         _marvelIdToId[_marvelId] = id;
+        _idToMarvelId[id] = _marvelId;
+
+        // Emit event
+        emit CharacterAdded(id, _marvelId, _name);
 
         // Returning the ID of the newly added character
         return id;
