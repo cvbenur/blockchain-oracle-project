@@ -1,132 +1,238 @@
 const ORACLE = artifacts.require('MarvelCharactersOracle');
 
 contract('MarvelCharactersOracle', (accounts) => {
-  beforeEach(async () => {
+  before(async () => {
+    // Deploy instance for use in tests
     contract = await ORACLE.deployed();
+
+    // Populate test blockchain with hard-coded data
+    await contract.addTestData();
   });
 
   // Testing testConnection()
-  it('should connect to the smart contract', async () => {
-    const connection = await contract.testConnection();
+  describe('testConnection()', () => {
+    it('should connect to the smart contract', async () => {
+      
+      // Testing smart contract connection
+      const connection = await contract.testConnection();
 
-    assert.equal(connection, true);
+      assert.equal(connection, true);
+    });
   });
 
 
   // Testing getAddress()
-  it('should return the correct contract address', async () => {
-    const expected = await contract.address;
+  describe('getAddress()', () => {
+    it('should return the correct contract address', async () => {
 
-    const actual = await contract.getAddress();
+      // Retrieving the actual address of the contract via truffle
+      const expected = await contract.address;
 
-    assert.equal(actual, expected);
+      // Retrieving the address of the contract via the contract
+      const actual = await contract.getAddress();
+
+      assert.equal(actual, expected);
+    });
   });
 
 
   // Testing characterExists()
-  it('should check if a specific character exists from its marvelId', async () => {
-    // Adding test data
-    await contract.addTestData();
+  describe('characterExists()', () => {
+    it('should be true if a specific character exists from its marvelId', async () => {
+
+      // Daredevil ID is expected to be found
+      const expectedCharacterMarvelId = 1009262;
+
+      // Check if DareDevil was found
+      const doesCharacterExists = await contract.characterExists(expectedCharacterMarvelId);
+
+      assert.equal(doesCharacterExists, true);
+    });
+
     
-    // Daredevil ID is expected to be found 
-    const expectedCharacterMarvelId = 1009262;
+    it('should be false if a character doesn\'t exist', async () => {
 
-    // Check if DareDevil was found
-    const doesCharacterExists = await contract.characterExists(expectedCharacterMarvelId);
+      // Random ID expected to not be found
+      const expectedCharacterMarvelId = 69_420;
 
-    assert.equal(doesCharacterExists, true);
+      // Check if any character was found
+      const doesCharacterExists = await contract.characterExists(expectedCharacterMarvelId);
+
+      assert.equal(doesCharacterExists, false);
+    });
   });
+
 
   // Testing getAllCharacters()
-  it('should return an array of the marvelId of all characters', async () => {
-    // Adding test data
-    await contract.addTestData();
+  describe('getAllCharacters()', () => {
+    it('should return all the characters stored in the smart contract', async () => {
     
-    // Creating an expected array with the marvelId of the characters added from the addTestData() method
-    let expectedArray = [1009610,1009262,1011339,1009452,1009399,1009191,1009577];
+      // Retrieving the number of characters stored in the contract
+      const expected = await contract.getNumberOfCharacters();
 
-    // Retrieving the actual array of marvelId of all characters
-    let actualArray = await contract.getAllCharacters();
+      // Retrieving the length of the actual array of characters
+      const actual = (await contract.getAllCharacters()).length;
 
-    assert.equal(actualArray, expectedArray);
+      assert.equal(actual, expected);
+    });
   });
+
 
   // Testing getCharacterById()
-  it('should return a character from its Id', async () => {
-    // Adding test data
-    await contract.addTestData();
-    
-    // Daredevil is expected to be found from his Id
-    const expectedCharacterId = 2;
+  describe('getCharacterById()', () => {
+    it('should return a character from a valid Id', async () => {
 
-    // Creating the expected struct of the DareDevil character
-    const expectedCharacter ={
+      // Daredevil is expected to be found from this id
+      const expectedCharacterId = 2;
+
+      // Creating the expected character object (Daredevil)
+      const expectedCharacter = {
         id: 2,
         marvelId: 1009262,
         name: "Daredevil",
         description: "Abandoned by his mother, Matt Murdock was raised by his father, boxer 'Battling Jack' Murdock, in Hell's Kitchen. Realizing that rules were needed to prevent people from behaving badly, young Matt decided to study law; however, when he saved a man from an oncoming truck, it spilled a radioactive cargo that rendered Matt blind while enhancing his remaining senses. Under the harsh tutelage of blind martial arts master Stick, Matt mastered his heightened senses and became a formidable fighter.",
         appearances: 1195
-    };
+      };
 
-    // Retrieve character from his Id
-    const actualCharacter = await contract.getCharacterById(expectedCharacterId);
+      // Retrieve character from his Id
+      const data = await contract.getCharacterById(expectedCharacterId);
 
-    assert.equal(actualCharacter, expectedCharacter);
+      // Construct resulting character object
+      const actualCharacter = {
+        id: data[0].toNumber(),
+        marvelId: data[1].toNumber(),
+        name: data[2],
+        description: data[3],
+        appearances: data[4].toNumber(),
+      };
+
+      assert.deepEqual(actualCharacter, expectedCharacter);
+    });
+
+
+    it('should return an empty character from a non-valid Id', async () => {
+
+      // Daredevil is expected to be found from this id
+      const expectedCharacterId = 69_420;
+
+      // Creating the expected character object (Daredevil)
+      const expectedCharacter = {
+        id: 0,
+        marvelId: 0,
+        name: "",
+        description: "",
+        appearances: 0,
+      };
+
+      // Retrieve character from his Id
+      const data = await contract.getCharacterById(expectedCharacterId);
+
+      // Construct resulting character object
+      const actualCharacter = {
+        id: data[0].toNumber(),
+        marvelId: data[1].toNumber(),
+        name: data[2],
+        description: data[3],
+        appearances: data[4].toNumber(),
+      };
+
+      assert.deepEqual(actualCharacter, expectedCharacter);
+    });
   });
+
 
   // Testing getCharacterByMarvelId()
-  it('should return a specific character from its marvelId', async () => {
-    // Adding test data
-    await contract.addTestData();
+  describe('getCharacterByMarvelId()', () => {
+    it('should return a specific character from its marvelId', async () => {
     
-    // Daredevil is expected to be found from his marvelId
-    const expectedMarvelId = 1009262; 
+      // Daredevil is expected to be found from this marvelId
+      const expectedMarvelId = 1009262;
 
-    // Creating the expected struct of the DareDevil character
-    const expectedCharacter ={
+      // Creating the expected character object (Daredevil)
+      const expectedCharacter = {
         id: 2,
         marvelId: 1009262,
         name: "Daredevil",
         description: "Abandoned by his mother, Matt Murdock was raised by his father, boxer 'Battling Jack' Murdock, in Hell's Kitchen. Realizing that rules were needed to prevent people from behaving badly, young Matt decided to study law; however, when he saved a man from an oncoming truck, it spilled a radioactive cargo that rendered Matt blind while enhancing his remaining senses. Under the harsh tutelage of blind martial arts master Stick, Matt mastered his heightened senses and became a formidable fighter.",
         appearances: 1195
-    };
+      };
 
-    // Retrieve character from his Id
-    const actualCharacter = await contract.getCharacterByMarvelId(expectedMarvelId);
+      // Retrieve character from his marvelId
+      const data = await contract.getCharacterByMarvelId(expectedMarvelId);
 
-    assert.equal(actualCharacter, expectedCharacter);
+      // Construct resulting character object
+      const actualCharacter = {
+        id: data[0].toNumber(),
+        marvelId: data[1].toNumber(),
+        name: data[2],
+        description: data[3],
+        appearances: data[4].toNumber(),
+      };
+
+      assert.deepEqual(actualCharacter, expectedCharacter);
+    });
+
+
+    it('should return an empty character from a non-valid Id', async () => {
+
+      // Daredevil is expected to be found from this id
+      const expectedCharacterId = 14;
+
+      // Creating the expected character object (Daredevil)
+      const expectedCharacter = {
+        id: 0,
+        marvelId: 0,
+        name: "",
+        description: "",
+        appearances: 0,
+      };
+
+      // Retrieve character from his Id
+      const data = await contract.getCharacterById(expectedCharacterId);
+
+      // Construct resulting character object
+      const actualCharacter = {
+        id: data[0].toNumber(),
+        marvelId: data[1].toNumber(),
+        name: data[2],
+        description: data[3],
+        appearances: data[4].toNumber(),
+      };
+
+      assert.deepEqual(actualCharacter, expectedCharacter);
+    });
   });
+
 
   // Testing getNumberOfCharacters()
-  it('should return the correct total number of characters', async () => {
-    // Adding test data
-    await contract.addTestData();
+  describe('getNumberOfCharacters()', () => {
+    it('should return the correct total number of characters', async () => {
     
-    // Number of characters expected to be found 
-    const expectedNumberOfCharacters = 7;
+      // Number of characters expected to be found
+      const expectedNumberOfCharacters = 7;
 
-    // Actual number of characters found 
-    const actualNumberOfCharacters = await contract.getNumberOfCharacters();
+      // Actual number of characters found 
+      const actualNumberOfCharacters = await contract.getNumberOfCharacters();
 
-    assert.equal(actualNumberOfCharacters, expectedNumberOfCharacters);
+      assert.equal(actualNumberOfCharacters, expectedNumberOfCharacters);
+    });
   });
+
 
   // Testing addCharacter()
-  it('should add a character', async () => {
-    // Adding test data
-    await contract.addTestData();
+  describe('addCharacter()', () => {
+    it('should add a character', async () => {
     
-    // Get the number of characters before adding a new one
-    const previousNumberOfCharacters = await contract.getNumberOfCharacters(); // Number of characters expected to be found 
-    
-    // Call of the addCharacter() method
-    await contract.addCharacter(1011334,"3-D Man", "",12)
+      // Get the current number of characters
+      const previousNumberOfCharacters = await contract.getNumberOfCharacters(); // Number of characters expected to be found 
 
-    // Get the number of characters after adding a new one
-    const actualNumberOfCharacters = await contract.getNumberOfCharacters();
+      // Add a new character
+      await contract.addCharacter(1011334, "3-D Man", "", 12);
 
-    // Check if the actual number of characters is equal to the number of characters before calling the addCharacter() method + 1
-    assert.equal(actualNumberOfCharacters, previousNumberOfCharacters+1);
+      // Get the number of characters after adding a new one
+      const actualNumberOfCharacters = await contract.getNumberOfCharacters();
+
+      assert.equal(actualNumberOfCharacters, (previousNumberOfCharacters.toNumber() + 1));
+    });
   });
-
 });
