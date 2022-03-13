@@ -1,9 +1,11 @@
-# Blockchain Oracle Project
+# 🔗 Blockchain Oracle Project
 
 This is the repository for the code to an Ethereum-based Oracle made for a school project.
 It inserts Marvel Comics character data into the blockchain.
 
-## Table of contents
+The project report is available [here](./Blockchain_Oracle_Project_Report.pdf).
+
+## 📖 Table of contents
 
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -13,15 +15,17 @@ It inserts Marvel Comics character data into the blockchain.
   - [The web2 server](#the-web2-server)
 - [Smart-contract unit tests](#smart-contract-unit-tests)
 
-## Requirements
+## ❗ Requirements
 
 This poject requires that [Truffle](https://trufflesuite.com/docs/truffle/) and [Ganache](https://trufflesuite.com/docs/ganache/) be installed on your machine in order to work.
 
 Since this project uses the [Marvel Comics public API](https://developer.marvel.com/), you will need to create an account and retrieve your public and private API keys.
 
-Once you have these keys, you must add them to the `.env.safe` at the root of this folder to enable the project to retrieve data from the Marvel Comics API. Otherwise, the web2 server will not work.
+Once you have these keys, you must add them to the `.env.safe` file at the root of this folder to enable the project to retrieve data from the Marvel Comics API.
 
-## Installation
+⚠ Without these API keys, the web2 server **will not work**. ⚠
+
+## 📦 Installation
 
 In order to install the application, open a terminal in this folder and run:
 
@@ -29,7 +33,7 @@ In order to install the application, open a terminal in this folder and run:
 npm install
 ```
 
-## Running the oracle
+## ▶ Running the oracle
 
 To run the oracle, please follow these steps:
 
@@ -61,7 +65,7 @@ The server should now be running, and will begin processing and pushing data to 
 
 In order to check that this project works, you can check the data stored inside the `MarvelCharactersOracle` smart-contract inside of Ganache.
 
-## Project structure
+## 📁 Project structure
 
 This oracle is comprised of 2 parts:
 
@@ -84,7 +88,7 @@ The web2 server is built to retrieve data, process the retrieved data and push i
 
 It is a very basic application written in TypeScript, that is designed to perform one fetch-and-push cycle per day.
 
-## Smart-contract unit tests
+## 🧪 Smart-contract unit tests
 
 This project comes with unit tests for the `MarvelCharactersOracle` contract methods. These tests are located in the `tests/contracts` directory.
 
